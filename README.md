@@ -1,5 +1,12 @@
-# Dr.Venom
-Dr.Venom is an advanced CLI system diagnostics &amp; automated cleanup framework optimized for Linux. It runs deep health checkups on vitals, network, &amp; services with an interactive auto-fix engine.
+# 🩺 Dr.Venom
+
+[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Kali-blueviolet?style=flat-square&logo=linux)](https://www.kali.org/)
+[![Language](https://img.shields.io/badge/Language-Python%203-blue?style=flat-square&logo=python)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](https://opensource.org/licenses/MIT)
+
+**Dr.Venom** is an advanced command-line system diagnostics, security audit, and automated optimization framework tailored for Linux environments (optimized for Kali Linux). Built in Python, it performs deep health checks—tracking core vitals, tracking battery health, evaluating disk leaks, checking network hygiene, and auditing services—backed by an interactive auto-fix and smart cleanup engine to maintain peak system performance.
+
+---
 
 ## 🚀 Key Features
 
@@ -9,34 +16,52 @@ Dr.Venom is an advanced CLI system diagnostics &amp; automated cleanup framework
 * **🧹 Smart Auto-Cleanup Engine:** Safely scrubs local APT caches, purges obsolete system configurations (`.dpkg-old`), vacuums historical journal logs, and removes orphaned dependencies.
 * **🛠️ Modular Execution:** Fully structured argument parsing to run independent test suites (`--security`, `--network`, `--performance`, `--tips`) or an absolute continuous maintenance scan (`--all --fix`).
 
-**Before installation: install some dependencies:
-sudo apt update
-sudo apt install python3-psutil -y**
+---
+## **Before installation: install some dependencies:
+#bash: sudo apt update    
+#bash: sudo apt install python3-psutil -y**
 
 **After this:
+
 ## Installation & Setup
 
 Follow these simple steps to download, install dependencies, and configure **Dr.Venom** on your Linux machine:
 
-#Clone the Repository
+# Clone the Repository
 Open your terminal and clone the repository directly from GitHub:
-```bash: git clone [https://github.com/venom-codes1/Dr.Venom.git](https://github.com/venom-codes1/Dr.Venom.git)**
+bash:  git clone [https://github.com/venom-codes1/Dr.Venom.git](https://github.com/venom-codes1/Dr.Venom.git)
 
-# Grant Execution Permissions
+## Grant Execution Permissions
 Make the core script execution-ready:
 
 bash: chmod +x healthtool.py
 
-💻 Usage & Command Flags
-Dr.Venom comes with flexible CLI arguments so you can run exactly what you need.
-
-Run a Complete Diagnostics & Auto-Cleanup (Recommended)
-To run all modules sequentially and trigger the interactive optimization engine:
-
-Bash:
+## All Rounder command (Recommended)
+Bash: 
 sudo ./healthtool.py --all --fix
 
-**Project Directory Structure**
+#Run a Complete Diagnostics & Auto-Cleanup 
+To run all modules sequentially and trigger the interactive optimization engine.
+
+
+## 💻 Usage & Command Flags
+Dr.Venom comes with flexible CLI arguments so you can run exactly what you need.
+If you want to isolate specific checkups, run the tool with any of these flags:
+           #Command Flag                                #Description
+1. python3 healthtool.py --security         Triggers a selective standalone Security and Audit verification.
+2. python3 healthtool.py --network          Inspects gateway loops, active interface sockets, and connection hygiene.
+3. python3 healthtool.py --performance     Evaluates resource overhead bottlenecks and active service performance.
+4. python3 healthtool.py --tips             Displays proactive system optimization configurations and suggestions.
+
+
+
+
+
+
+
+
+
+Project Directory Structure
 Dr.Venom/
 ├── .gitignore          # Safely filters out temporary Python bytecodes (__pycache__/)
 ├── LICENSE             # MIT Open-Source Permissive License

@@ -26,7 +26,6 @@ class C:
     GREEN = '\033[32m'
     END = '\033[0m'
 
-# Services that SHOULD be active on Kali
 ESSENTIAL_SERVICES = ['cron', 'systemd-logind']
 OPTIONAL_SERVICES = ['ssh', 'systemd-resolved']
 
@@ -46,7 +45,7 @@ def print_banner():
  ╚══════════════════════════════════════════════════════════════════════╝
     """
     print(f"{C.HEADER}{C.BOLD}{banner}{C.END}")
-    print(f"                  Kali Linux Edition - Powered by Dr.Venom\n")
+    print(f"                Kali Linux Edition - Powered by Dr.Venom\n")
 
 def run(cmd, sudo=False, timeout=90):
     """Execute shell command safely"""
@@ -104,7 +103,7 @@ def deep_battery_health():
         else:
             print(f"   {C.WARN}No battery detected (Desktop/Server mode){C.END}")
             return
-       
+        
         _, out, _ = run("upower -e 2>/dev/null | grep battery")
         if out:
             _, details, _ = run(f"upower -i {out.strip()}")
@@ -125,26 +124,111 @@ def disk_cleaner():
     except Exception as e:
         print(f"   {C.WARN}Could not get disk info{C.END}")
 
-# Baaki functions (security, network, performance, etc.) same rakhe hain
-# ... (aapke purane script ke baaki functions yahan copy kiye gaye hain)
+def security_audit():
+    print(f"\n{C.BOLD}🛡️ Security & Integrity Audit{C.END}")
+    # Check failed logins
+    _, out, _ = run("grep 'failed' /var/log/auth.log 2>/dev/null | wc -l")
+    print(f"   Failed Login Attempts: {out if out else '0'}")
+    # Check if root login is allowed via SSH
+    if os.path.exists("/etc/ssh/sshd_config"):
+        _, out, _ = run("grep '^PermitRootLogin' /etc/ssh/sshd_config")
+        print(f"   SSH Root Login Configuration: {out if out else 'Default (Managed)'}")
+    else:
+        print("   SSH Service config not found.")
+
+def network_health(auto_fix=False):
+    print(f"\n{C.BOLD}🌐 Network Hygiene Status{C.END}")
+    # Check internet connectivity
+    ret, _, _ = run("ping -c 1 8.8.8.8", timeout=5)
+    if ret == 0:
+        print(f"   Internet Connectivity: {C.OK}ONLINE{C.END}")
+    else:
+        print(f"   Internet Connectivity: {C.FAIL}OFFLINE{C.END}")
+        if auto_fix:
+            print("   [🛠️ Auto-Fix] Attempting to restart networking service...")
+            run("systemctl restart networking", sudo=True)
+
+def performance_analysis():
+    print(f"\n{C.BOLD}⚡ Performance & Resource Bottlenecks{C.END}")
+    zombies = [p for p in psutil.process_iter(['status']) if p.info['status'] == psutil.STATUS_ZOMBIE]
+    print(f"   Zombie Processes Detected: {len(zombies)}")
+    if len(zombies) > 0:
+        print(f"   {C.WARN}Warning: {len(zombies)} idle/zombie processes lingering.{C.END}")
+
+def service_status(auto_fix=False):
+    print(f"\n{C.BOLD}⚙️ Essential System Services Core{C.END}")
+    for svc in ESSENTIAL_SERVICES:
+        ret, _, _ = run(f"systemctl is-active {svc}")
+        if ret == 0:
+            print(f"   {svc:<18}: {C.OK}ACTIVE{C.END}")
+        else:
+            print(f"   {svc:<18}: {C.FAIL}INACTIVE{C.END}")
+            if auto_fix:
+                print(f"   [🛠️ Auto-Fix] Booting up required service: {svc}")
+                run(f"systemctl start {svc}", sudo=True)
+
+def filesystem_integrity():
+    print(f"\n{C.BOLD}📂 Filesystem Integrity Verification{C.END}")
+    _, out, _ = run("mount | grep 'ro,'")
+    if out:
+        print(f"   {C.FAIL}Alert! Read-only partitions detected:{C.END}\n{out}")
+    else:
+        print(f"   All active partitions are mounted clean with {C.OK}Read/Write privileges{C.END}")
+
+def dependency_check(auto_fix=False):
+    print(f"\n{C.BOLD}🧩 Package Dependency Verifications{C.END}")
+    ret, out, _ = run("dpkg --configure -a", sudo=True)
+    if ret == 0:
+        print(f"   Broken configurations: {C.OK}None found{C.END}")
+    else:
+        print(f"   {C.WARN}Unconfigured dependencies detected.{C.END}")
+
+def performance_recommendations():
+    print(f"\n{C.BOLD}💡 Engine Performance Tuning Overview{C.END}")
+    swappiness = "/proc/sys/vm/swappiness"
+    if os.path.exists(swappiness):
+        with open(swappiness, 'r') as f:
+            val = f.read().strip()
+        print(f"   Current System Linux Swappiness Value: {val}")
+
+def system_optimization_tips(health):
+    print(f"\n{C.BOLD}💡 Dr. Venom's Pro Custom Optimization Tips{C.END}")
+    if health.get('ram', 0) > 80:
+        print("   - [RAM] Memory limits exceeding 80%. Clean runtime leaks using: 'sync; echo 3 > /proc/sys/vm/drop_caches'")
+    if health.get('disk', 0) > 85:
+        print("   - [DISK] Storage highly constraints. Purge unused tool cache or purge packages using '--fix'")
+    else:
+        print("   - System vitals stable. Keep your repositories updated regularly.")
+
+def check_files_for_update():
+    # Looks for stale configurations
+    _, out, _ = run("find /etc -name '*.dpkg-old' -o -name '*.dpkg-dist' 2>/dev/null")
+    found = bool(out.strip())
+    return found, out
+
+def check_files_for_delete():
+    # Looks for older cache structures
+    _, out, _ = run("find /var/cache -type f -mtime +30 2>/dev/null")
+    found = bool(out.strip())
+    return found, out
 
 def auto_clean(updates, files_update_found, files_delete_found):
     """Auto cleanup and optimization"""
     print(f"\n{C.BOLD}🧹 Dr. Venom Auto Cleanup Engine{C.END}")
-   
+    
     if files_update_found:
         update_choice = input("   Apply file updates (.dpkg-old)? (y/n): ").strip().lower()
         if update_choice == 'y':
             run("find /etc -name '*.dpkg-old' -o -name '*.dpkg-dist' 2>/dev/null | xargs rm -f", sudo=True)
             print(f"   {C.OK}File updates processed!{C.END}")
-   
+    
     if files_delete_found:
         delete_choice = input("   Delete old cache/log files? (y/n): ").strip().lower()
         if delete_choice == 'y':
             run("find /var/cache -type f -mtime +30 -delete 2>/dev/null", sudo=True)
             run("find /var/log -type f -mtime +60 -name '*.log' -delete 2>/dev/null", sudo=True)
             print(f"   {C.OK}Old files cleaned!{C.END}")
-   
+    
     choice = input("   Perform full cleanup (Cache + Logs)? (y/n): ").strip().lower()
     if choice == 'y':
         print(f"{C.WARN}   Starting cleanup...{C.END}")
@@ -152,7 +236,7 @@ def auto_clean(updates, files_update_found, files_delete_found):
         run("apt clean", sudo=True)
         run("journalctl --vacuum-time=10d", sudo=True)
         print(f"{C.OK}   ✅ Disk Cleanup Completed!{C.END}")
-   
+    
     if updates > 0:
         up_choice = input(f"   {updates} updates available. Upgrade now? (y/n): ").strip().lower()
         if up_choice == 'y':
@@ -207,7 +291,7 @@ def main():
 
     if args.fix or args.all:
         auto_clean(updates, files_update_found, files_delete_found)
-   
+    
     print(f"\n{C.OK}{C.BOLD}✅ Dr. Venom's Full Body Checkup Completed!{C.END}\n")
 
 if __name__ == "__main__":
@@ -215,5 +299,3 @@ if __name__ == "__main__":
         print(f"{C.WARN}Run with sudo for full power: sudo ./healthtool.py --all --fix{C.END}\n")
     main()
 EOF
-
-

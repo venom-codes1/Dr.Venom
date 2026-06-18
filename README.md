@@ -30,6 +30,7 @@ Follow these simple steps to download, install dependencies, and configure **Dr.
 # Clone the Repository
 Open your terminal and clone the repository directly from GitHub:
 bash:  git clone [https://github.com/venom-codes1/Dr.Venom.git](https://github.com/venom-codes1/Dr.Venom.git)
+cd Dr.Venom
 
 ## Grant Execution Permissions
 Make the core script execution-ready:
